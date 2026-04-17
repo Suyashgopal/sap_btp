@@ -115,3 +115,7 @@ srv/odata-v2/
 # Temporary files
 *.tmp
 *.temp
+
+# Database files
+*.sqlite
+*.db
