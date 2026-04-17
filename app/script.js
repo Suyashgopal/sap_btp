@@ -1,9 +1,6 @@
-// Student Management System JavaScript
-// Handles CRUD operations with SAP CAP backend
-
 class StudentManager {
     constructor() {
-        this.apiBase = 'http://localhost:4005/catalog/Students';
+        this.apiBase = '/catalog/Students';
         this.students = [];
         this.editingStudentId = null;
         this.init();
@@ -15,13 +12,11 @@ class StudentManager {
     }
 
     bindEvents() {
-        // Form submission
         document.getElementById('studentForm').addEventListener('submit', (e) => {
             e.preventDefault();
             this.handleFormSubmit();
         });
 
-        // Cancel button
         document.getElementById('cancelBtn').addEventListener('click', () => {
             this.resetForm();
         });
@@ -51,13 +46,27 @@ class StudentManager {
     async handleFormSubmit() {
         const formData = this.getFormData();
         
+        if (formData.age <= 0) {
+            this.showError('Age must be greater than 0');
+            return;
+        }
+        
+        if (formData.name.length < 2) {
+            this.showError('Name must be at least 2 characters long');
+            return;
+        }
+        
+        if (formData.course.length < 3) {
+            this.showError('Course must be at least 3 characters long');
+            return;
+        }
+        
         try {
             this.showLoading(true);
             
             let response;
             if (this.editingStudentId) {
-                // Update existing student
-                response = await fetch(`${this.apiBase}/${this.editingStudentId}`, {
+                response = await fetch(`${this.apiBase}(${this.editingStudentId})`, {
                     method: 'PATCH',
                     headers: {
                         'Content-Type': 'application/json',
@@ -65,7 +74,6 @@ class StudentManager {
                     body: JSON.stringify(formData)
                 });
             } else {
-                // Create new student
                 response = await fetch(this.apiBase, {
                     method: 'POST',
                     headers: {
@@ -98,12 +106,13 @@ class StudentManager {
         
         try {
             this.showLoading(true);
-            const response = await fetch(`${this.apiBase}/${studentId}`, {
+            const response = await fetch(`${this.apiBase}(${studentId})`, {
                 method: 'DELETE'
             });
             
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorData = await response.json();
+                throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
             }
             
             this.showSuccess('Student deleted successfully!');
@@ -130,7 +139,6 @@ class StudentManager {
         document.getElementById('submitBtn').textContent = 'Update Student';
         document.getElementById('cancelBtn').style.display = 'inline-block';
         
-        // Scroll to form
         document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -169,7 +177,6 @@ class StudentManager {
                 <td>${this.escapeHtml(student.name)}</td>
                 <td>${student.age}</td>
                 <td>${this.escapeHtml(student.course)}</td>
-                <td>${this.formatDate(student.createdAt)}</td>
                 <td>
                     <div class="actions">
                         <button class="btn btn-edit" onclick="studentManager.editStudent('${student.ID}')">Edit</button>
@@ -215,16 +222,6 @@ class StudentManager {
         return id.substring(0, 8) + '...';
     }
 
-    formatDate(dateString) {
-        if (!dateString) return 'N/A';
-        try {
-            const date = new Date(dateString);
-            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-        } catch (error) {
-            return 'N/A';
-        }
-    }
-
     escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
@@ -232,12 +229,10 @@ class StudentManager {
     }
 }
 
-// Initialize the application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.studentManager = new StudentManager();
 });
 
-// Utility functions for global access
 window.editStudent = (id) => {
     window.studentManager.editStudent(id);
 };
