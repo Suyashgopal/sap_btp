@@ -1,0 +1,98 @@
+# Multi-Target Application (MTA) Descriptor
+# Student Management System for SAP BTP Deployment
+
+_schema-version: '3.1'
+ID: student-management
+version: 1.0.0
+description: "Student Management System using SAP CAP and SAP HANA"
+
+modules:
+  # HANA Database Module
+  - name: student-management-db
+    type: hdb
+    path: db
+    parameters:
+      memory: 256M
+      disk-quota: 256M
+    requires:
+      - name: student-management-hdi-container
+        properties:
+          TARGET_CONTAINER: ~{hdi-container-name}
+
+  # Node.js Service Module
+  - name: student-management-srv
+    type: nodejs
+    path: srv
+    parameters:
+      memory: 512M
+      disk-quota: 512M
+    provides:
+      - name: srv-api
+        properties:
+          url: ${default-url}
+    requires:
+      - name: student-management-hdi-container
+      - name: student-management-uaa
+        properties:
+          XS_APPNAME: ${xsappname}
+          CLIENT_ID: ${clientid}
+          CREDENTIALS: ${credentials}
+
+  # Application Router Module
+  - name: student-management-app
+    type: approuter
+    path: app
+    parameters:
+      memory: 256M
+      disk-quota: 256M
+    requires:
+      - name: student-management-uaa
+      - name: srv-api
+        group: destinations
+        properties:
+          name: srv-api
+          url: ~{url}
+          forwardAuthToken: true
+
+resources:
+  # HDI Container for HANA Database
+  - name: student-management-hdi-container
+    type: com.sap.xs.hdi-container
+    parameters:
+      service: hana
+      service-plan: hdi-shared
+      config:
+        schema: STUDENT_MANAGEMENT
+
+  # XSUAA Service for Authentication
+  - name: student-management-uaa
+    type: com.sap.xs.uaa
+    parameters:
+      service: xsuaa
+      service-plan: application
+      path: ./xs-security.json
+      config:
+        xsappname: student-management-${org}-${space}
+        tenant-mode: dedicated
+        role-collections:
+          - name: 'StudentManager'
+            description: 'Manage Students'
+            role-template-references:
+              - $XSAPPNAME.StudentManager
+
+# Build Parameters
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npm install --production
+  after-all:
+    - builder: custom
+      commands:
+        - npm install
+
+# Deployment Parameters
+deployment-descriptor:
+  schemas:
+    - name: student-management
+      version: "1.0.0"

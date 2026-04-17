@@ -1,0 +1,16 @@
+{
+  "build": {
+    "target": ".gen"
+  },
+  "run": {
+    "cwd": ".gen"
+  },
+  "odata": {
+    "version": "v4"
+  },
+  "serve": {
+    "static": [
+      { "source": "app", "target": "/" }
+    ]
+  }
+}

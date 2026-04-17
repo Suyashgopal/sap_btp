@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Student Management System</h1>
+            <p>SAP CAP - Student CRUD Operations</p>
+        </header>
+
+        <!-- Student Form Section -->
+        <section class="form-section">
+            <h2 id="formTitle">Add New Student</h2>
+            <form id="studentForm">
+                <input type="hidden" id="studentId">
+                
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="age">Age:</label>
+                    <input type="number" id="age" name="age" min="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="course">Course:</label>
+                    <input type="text" id="course" name="course" required>
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="submit" id="submitBtn" class="btn btn-primary">Add Student</button>
+                    <button type="button" id="cancelBtn" class="btn btn-secondary" style="display: none;">Cancel</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Students Table Section -->
+        <section class="table-section">
+            <div class="table-header">
+                <h2>Students List</h2>
+                <div class="stats">
+                    <span id="totalStudents">Total: 0 students</span>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table id="studentsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Age</th>
+                            <th>Course</th>
+                            <th>Created At</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsTableBody">
+                        <!-- Students will be populated here -->
+                    </tbody>
+                </table>
+                <div id="noDataMessage" class="no-data" style="display: none;">
+                    No students found. Add your first student above!
+                </div>
+            </div>
+        </section>
+
+        <!-- Loading and Error Messages -->
+        <div id="loadingMessage" class="loading" style="display: none;">
+            Loading students...
+        </div>
+        
+        <div id="errorMessage" class="error" style="display: none;">
+            <!-- Error messages will be displayed here -->
+        </div>
+        
+        <div id="successMessage" class="success" style="display: none;">
+            <!-- Success messages will be displayed here -->
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
